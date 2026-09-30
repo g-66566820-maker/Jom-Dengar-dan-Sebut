@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jom Dengar & Sebut - Vokal dan Konsonan</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:"Trebuchet MS",Arial,sans-serif;background:linear-gradient(135deg,#dff7ff,#fff4c7);color:#24324a;min-height:100vh}
+.container{width:min(920px,94%);margin:0 auto;padding:24px 0 40px}
+.card{background:#fff;border-radius:28px;padding:28px;box-shadow:0 10px 30px #00000018}
+h1{margin:0;color:#4b3f9b;font-size:clamp(28px,5vw,44px)}
+h2{margin-top:8px;color:#ef6c57}
+.subtitle{font-size:18px;line-height:1.5}
+.screen{display:none}.screen.active{display:block}
+.logo{font-size:58px;text-align:center;margin-bottom:5px}
+.namebox{display:block;width:100%;max-width:520px;margin:22px auto;padding:15px 18px;border:3px solid #9dd9ff;border-radius:16px;font-size:20px;outline:none}
+.namebox:focus{border-color:#6c63d9}
+.btn{border:0;border-radius:18px;padding:14px 24px;font-size:20px;font-weight:bold;cursor:pointer;transition:.15s;box-shadow:0 5px 0 #0002}
+.btn:hover{transform:translateY(-2px)}.btn:active{transform:translateY(2px);box-shadow:0 2px 0 #0002}
+.primary{background:#6c63d9;color:white}.green{background:#53c98b;color:white}.orange{background:#ffad4a;color:white}
+.center{text-align:center}
+.topbar{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+.badge{background:#f0edff;padding:10px 15px;border-radius:14px;font-weight:bold}
+.progress{height:14px;background:#e8edf3;border-radius:20px;overflow:hidden;margin:10px 0 22px}
+.progress div{height:100%;background:#6c63d9;width:0;transition:.3s}
+.question{text-align:center;font-size:25px;font-weight:bold;margin:15px 0 20px}
+.speak{display:inline-flex;align-items:center;gap:8px;background:#ffe27a;border:0;border-radius:50px;padding:12px 20px;font-size:18px;font-weight:bold;cursor:pointer}
+.options{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:22px}
+.option{background:#f7f9fc;border:3px solid #d9e2ec;border-radius:20px;padding:18px;font-size:23px;font-weight:bold;cursor:pointer;min-height:70px}
+.option:hover{background:#eef5ff;border-color:#9ac8f5}
+.option.correct{background:#d9f8e8;border-color:#39b977;color:#137a4b}.option.wrong{background:#ffe0e0;border-color:#ed6666;color:#a52222}
+.option:disabled{cursor:default}
+.feedback{min-height:58px;text-align:center;font-size:21px;font-weight:bold;margin-top:18px;padding:12px;border-radius:16px}
+.feedback.ok{background:#e3faee;color:#147847}.feedback.no{background:#ffebeb;color:#a32929}
+.nextwrap{text-align:center;margin-top:12px}
+.result-score{font-size:64px;color:#6c63d9;font-weight:bold}
+.stars{font-size:42px;letter-spacing:5px}
+.review{text-align:left;margin-top:20px;background:#f7f9fc;border-radius:18px;padding:15px}
+.review p{margin:8px 0;padding:10px;border-radius:10px}
+.review .r-ok{background:#e5faef}.review .r-no{background:#ffeded}
+.small{font-size:15px;color:#657080}
+@media(max-width:600px){.container{padding-top:12px}.card{padding:20px;border-radius:22px}.options{grid-template-columns:1fr}.question{font-size:22px}.option{font-size:21px}}
+</style>
+</head>
+<body>
+<div class="container">
+<div id="start" class="screen active">
+  <div class="card center">
+    <div class="logo">🎧🔤</div>
+    <h1>Jom Dengar & Sebut!</h1>
+    <h2>Vokal dan Konsonan</h2>
+    <p class="subtitle">Mari dengar, kenal pasti dan sebut bunyi dengan betul. Sedia, murid Tahun 1?</p>
+    <input id="studentName" class="namebox" maxlength="40" placeholder="✏️ Taip nama kamu di sini">
+    <button class="btn primary" onclick="startGame()">Mula Bermain 🚀</button>
+    <p class="small">10 soalan • Pilih jawapan yang betul</p>
+  </div>
+</div>
+
+<div id="game" class="screen">
+ <div class="card">
+  <div class="topbar">
+   <div class="badge">👧🧒 <span id="displayName"></span></div>
+   <div class="badge">⭐ Markah: <span id="score">0</span></div>
+   <div class="badge">Soalan <span id="qNo">1</span>/10</div>
+  </div>
+  <div class="progress"><div id="bar"></div></div>
+  <div class="question" id="question"></div>
+  <div class="center"><button class="speak" onclick="speakQuestion()">🔊 Dengar Bunyi</button></div>
+  <div class="options" id="options"></div>
+  <div id="feedback" class="feedback"></div>
+  <div class="nextwrap"><button id="nextBtn" class="btn green" style="display:none" onclick="nextQuestion()">Soalan Seterusnya ➜</button></div>
+ </div>
+</div>
+
+<div id="result" class="screen">
+ <div class="card center">
+  <div class="logo">🏆</div>
+  <h1>Tahniah!</h1>
+  <p class="subtitle">Hebat, <strong id="resultName"></strong>! Permainan sudah selesai.</p>
+  <div class="result-score"><span id="finalScore">0</span>/10</div>
+  <div class="stars" id="stars"></div>
+  <h2 id="resultMessage"></h2>
+  <button class="btn primary" onclick="restart()">Main Semula 🔄</button>
+  <div class="review" id="review"></div>
+ </div>
+</div>
+</div>
+
+<script>
+const questions=[
+ {q:"Bunyi apakah pada perkataan <b>ayam</b> yang disebut pada awal perkataan?",s:"a",opts:["a","m","y","k"],a:"a"},
+ {q:"Apakah vokal yang terdapat pada awal perkataan <b>ikan</b>?",s:"i",opts:["i","a","u","o"],a:"i"},
+ {q:"Apakah konsonan pada awal perkataan <b>baju</b>?",s:"b",opts:["a","b","u","j"],a:"b"},
+ {q:"Dengar bunyi ini: <b>e</b>. Yang manakah vokal?",s:"e",opts:["e","m","t","s"],a:"e"},
+ {q:"Apakah konsonan pada awal perkataan <b>roti</b>?",s:"r",opts:["o","r","i","a"],a:"r"},
+ {q:"Dengar bunyi ini: <b>u</b>. Yang manakah vokal?",s:"u",opts:["u","p","n","l"],a:"u"},
+ {q:"Apakah konsonan pada awal perkataan <b>kuda</b>?",s:"k",opts:["u","a","k","d"],a:"k"},
+ {q:"Apakah vokal pada awal perkataan <b>oren</b>?",s:"o",opts:["o","r","n","e"],a:"o"},
+ {q:"Dengar bunyi ini: <b>m</b>. Yang manakah konsonan?",s:"m",opts:["a","m","i","u"],a:"m"},
+ {q:"Apakah konsonan pada awal perkataan <b>susu</b>?",s:"s",opts:["u","s","a","e"],a:"s"}
+];
+
+let current=0,score=0,student="",answered=false,answers=[];
+
+function show(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active")}
+function startGame(){
+ student=document.getElementById("studentName").value.trim();
+ if(!student){alert("Sila taip nama kamu dahulu 😊");return}
+ current=0;score=0;answers=[];document.getElementById("displayName").textContent=student;
+ show("game");loadQuestion();
+}
+function loadQuestion(){
+ answered=false;let x=questions[current];
+ document.getElementById("qNo").textContent=current+1;document.getElementById("score").textContent=score;
+ document.getElementById("bar").style.width=((current)/questions.length*100)+"%";
+ document.getElementById("question").innerHTML=x.q;
+ document.getElementById("feedback").textContent="";document.getElementById("feedback").className="feedback";
+ document.getElementById("nextBtn").style.display="none";
+ let box=document.getElementById("options");box.innerHTML="";
+ x.opts.forEach(opt=>{
+  let b=document.createElement("button");b.className="option";b.textContent=opt.toUpperCase();b.onclick=()=>choose(opt,b);box.appendChild(b);
+ });
+}
+function choose(opt,btn){
+ if(answered)return;answered=true;let x=questions[current];
+ document.querySelectorAll(".option").forEach(b=>b.disabled=true);
+ let fb=document.getElementById("feedback");
+ if(opt===x.a){score++;btn.classList.add("correct");fb.textContent="🎉 Betul! Bagus sekali!";fb.classList.add("ok")}
+ else{btn.classList.add("wrong");document.querySelectorAll(".option").forEach(b=>{if(b.textContent.toLowerCase()===x.a)b.classList.add("correct")});fb.innerHTML="😊 Belum tepat. Jawapan betul ialah <b>"+x.a.toUpperCase()+"</b>.";fb.classList.add("no")}
+ answers.push({question:x.q,chosen:opt,correct:x.a,ok:opt===x.a});
+ document.getElementById("score").textContent=score;
+ document.getElementById("nextBtn").style.display="inline-block";
+}
+function nextQuestion(){
+ current++;
+ if(current<questions.length)loadQuestion();else finish();
+}
+function finish(){
+ document.getElementById("bar").style.width="100%";document.getElementById("finalScore").textContent=score;document.getElementById("resultName").textContent=student;
+ let stars=score>=9?"⭐⭐⭐⭐⭐":score>=7?"⭐⭐⭐⭐":score>=5?"⭐⭐⭐":score>=3?"⭐⭐":"⭐";
+ document.getElementById("stars").textContent=stars;
+ document.getElementById("resultMessage").textContent=score===10?"Hebat! Semua jawapan betul! 🌟":score>=7?"Syabas! Teruskan usaha! 👏":score>=5?"Bagus! Cuba lagi untuk markah lebih tinggi! 💪":"Jangan berputus asa! Mari cuba lagi! 😊";
+ document.getElementById("review").innerHTML="<h3>📋 Semakan Jawapan</h3>"+answers.map((a,i)=>`<p class="${a.ok?"r-ok":"r-no"}"><b>${i+1}.</b> ${a.ok?"✅ Betul":"❌ Jawapan: "+a.chosen.toUpperCase()+" | Betul: "+a.correct.toUpperCase()}</p>`).join("");
+ show("result");
+}
+function restart(){show("start");document.getElementById("studentName").value=student}
+function speakQuestion(){
+ let x=questions[current], text=x.s.replace(/<[^>]*>/g,"");
+ if("speechSynthesis" in window){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(text);u.lang="ms-MY";u.rate=.8;u.pitch=1.1;speechSynthesis.speak(u)}
+ else alert("Fungsi audio tidak disokong oleh pelayar ini.");
+}
+</script>
+</body>
+</html>
